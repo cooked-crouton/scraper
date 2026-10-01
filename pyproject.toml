@@ -1,10 +1,11 @@
 [project]
-name = "cc-scraper"
+name = "cc_scraper"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "beautifulsoup4",
+#    "sentence-transformers"
 ]
 
 [project.scripts]
-scrape = "scraper.main:main"
+cc_scraper = "cc_scraper.__main__:main"
