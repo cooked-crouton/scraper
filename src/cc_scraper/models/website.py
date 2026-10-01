@@ -6,6 +6,7 @@ class Website:
     url: str
     title: str
     pagination: str | None = None
+    recipes_url_element: str | None = None
     recipes_url: list[str] = field(default_factory=list)
     ingredients: str| None = None
     ingredient_name: str | None = None

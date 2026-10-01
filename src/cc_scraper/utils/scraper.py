@@ -14,10 +14,17 @@ class Scraper:
 		seen = set()
 
 		while len(recipes_url) < max_links:
+
+			# guard against infinite loop if no recipes are found within the first 3 pages
+			if page_index > 3 and len(recipes_url) == 0:
+				break
+			
+			#print(f"{website.url}{website.pagination}{page_index}")
+
 			page = get(f"{website.url}{website.pagination}{page_index}")
 			soup = BeautifulSoup(page, "html.parser")
 
-			for link in soup.select("a[href*='recettes/']"):
+			for link in soup.select(f"{website.recipes_url_element}"):
 				if len(recipes_url) >= max_links:
 					break
 
