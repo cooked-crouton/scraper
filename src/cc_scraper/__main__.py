@@ -1,5 +1,5 @@
-from scraper.utils.scraper import Scraper
-from scraper.website_definitions.marmiton import MARMITON
+from cc_scraper.utils.scraper import Scraper
+from cc_scraper.website_definitions.marmiton import MARMITON
 
 def main():
     recipe_url = Scraper().get_recipes_url(MARMITON, 50)

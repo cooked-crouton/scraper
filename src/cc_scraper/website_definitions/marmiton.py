@@ -1,4 +1,4 @@
-from scraper.models.website import Website
+from cc_scraper.models.website import Website
 
 MARMITON = Website(
     name="marmiton",

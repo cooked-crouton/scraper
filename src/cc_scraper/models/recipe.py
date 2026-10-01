@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from scraper.models.ingredient import Ingredient
+from cc_scraper.models.ingredient import Ingredient
 
 @dataclass
 class Recipe:

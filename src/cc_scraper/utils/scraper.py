@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-from scraper.models.ingredient import Ingredient
-from scraper.models.recipe import Recipe
-from scraper.models.website import Website
-from scraper.utils.http import get
+from cc_scraper.models.ingredient import Ingredient
+from cc_scraper.models.recipe import Recipe
+from cc_scraper.models.website import Website
+from cc_scraper.utils.http import get
 
 
 class Scraper:
