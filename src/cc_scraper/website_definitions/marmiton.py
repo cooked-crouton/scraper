@@ -5,6 +5,7 @@ MARMITON = Website(
     url="https://www.marmiton.org/recettes/",
     pagination="?page=",
     title="h1",
+    recipes_url_element="a[href*='/recettes/recette_']",
     ingredients=".card-recipe-ingredient",
     ingredient_name=".card-recipe-ingredient__name",
     quantity=".card-recipe-ingredient__quantity",
