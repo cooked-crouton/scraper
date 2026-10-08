@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import re
 from urllib.parse import urljoin
 
 from cc_scraper.models.ingredient import Ingredient
@@ -60,20 +61,12 @@ class Scraper:
         steps = self._texts(soup, website.steps)
         cook_time = self._text(soup, website.cook_time)
 
-        image = None
-        if website.image:
-            image_element = soup.select_one(website.image)
-            if image_element:
-                image = image_element.get("content") or image_element.get("src")
-
         return Recipe(
                 url=recipe_url,
                 title=title,
                 ingredients=ingredients,
                 steps=steps,
-                cook_time=cook_time,
-                image=image,
-                )
+                cook_time=cook_time)
 
     @staticmethod
     def _text(soup: BeautifulSoup, selector: str | None) -> str | None:
@@ -112,4 +105,8 @@ class Scraper:
             return None
 
         element = item.select_one(selector)
-        return element.get_text(" ", strip=True) if element else None
+        if not element:
+            return None
+
+        text = element.get_text(" ", strip=True)
+        return re.sub(r"\s+", " ", text).strip()

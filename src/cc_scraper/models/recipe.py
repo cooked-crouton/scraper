@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import json
 
 from cc_scraper.models.ingredient import Ingredient
 
@@ -9,7 +10,6 @@ class Recipe:
     ingredients: list[Ingredient] = field(default_factory=list)
     steps: list[str] = field(default_factory=list)
     cook_time: str | None = None
-    image: str | None = None
 
     def __str__(self) -> str:
         result = [f"\n{self.title}"]
@@ -22,3 +22,11 @@ class Recipe:
         for step in self.steps:
             result.append(f"\t- {step}")
         return "\n".join(result)
+
+    def to_json(self):
+        return json.dumps(
+                self,
+                default=lambda o: o.__dict__, 
+                sort_keys=True,
+                indent=4,
+                ensure_ascii=False)
