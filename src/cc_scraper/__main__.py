@@ -25,7 +25,7 @@ def main():
     for recipe in recipes:
         #print(str(cpt) + ". " + recipe.title)
         #cpt += 1
-        print(recipe)
+        print(recipe.toJson())
 
 if __name__ == "__main__":
     main()
