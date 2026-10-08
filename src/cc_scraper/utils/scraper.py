@@ -8,99 +8,108 @@ from cc_scraper.utils.http import get
 
 
 class Scraper:
-	def get_recipes_url(self, website: Website, max_links: int) -> list[str]:
-		page_index = 1
-		recipes_url = []
-		seen = set()
+    def get_recipes_url(self, website: Website, max_links: int) -> list[str]:
+        page_index = 1
+        recipes_url = []
+        seen = set()
 
-		while len(recipes_url) < max_links:
-			page = get(f"{website.url}{website.pagination}{page_index}")
-			soup = BeautifulSoup(page, "html.parser")
+        previous_count = -1;
 
-			for link in soup.select("a[href*='recettes/']"):
-				if len(recipes_url) >= max_links:
-					break
+        while len(recipes_url) < max_links:
 
-				href = link.get("href")
-				if not href:
-					continue
+            # guard against infinite loop if no recipes are found within the first 3 pages
+            if len(recipes_url) == previous_count:
+                break
 
-				recipe_url = urljoin(website.url, href)
-				if recipe_url not in seen:
-					seen.add(recipe_url)
-					recipes_url.append(recipe_url)
+            previous_count = len(recipes_url)
 
-			page_index += 1
+            page = get(f"{website.url}{website.pagination}{page_index}")
+            soup = BeautifulSoup(page, "html.parser")
 
-		website.recipes_url = recipes_url
-		return recipes_url
+            for link in soup.select(f"{website.recipes_url_element}"):
+                if len(recipes_url) >= max_links:
+                    break
 
-	def scrape(self, website: Website) -> list[Recipe]:
-		recipes = []
-		for recipe_url in website.recipes_url:
-			page = get(recipe_url)
-			recipes.append(self.parse(website, page, recipe_url))
+                href = link.get("href")
+                if not href:
+                    continue
 
-		return recipes
+                recipe_url = urljoin(website.url, href)
+                if recipe_url not in seen:
+                    seen.add(recipe_url)
+                    recipes_url.append(recipe_url)
 
-	def parse(self, website: Website, page: str, recipe_url: str) -> Recipe:
-		soup = BeautifulSoup(page, "html.parser")
+            page_index += 1
 
-		title = self._text(soup, website.title)
-		ingredients = self._ingredients(soup, website)
-		steps = self._texts(soup, website.steps)
-		cook_time = self._text(soup, website.cook_time)
+        website.recipes_url = recipes_url
+        return recipes_url
 
-		image = None
-		if website.image:
-			image_element = soup.select_one(website.image)
-			if image_element:
-				image = image_element.get("content") or image_element.get("src")
+    def scrape(self, website: Website) -> list[Recipe]:
+        recipes = []
+        for recipe_url in website.recipes_url:
+            page = get(recipe_url)
+            recipes.append(self.parse(website, page, recipe_url))
 
-		return Recipe(
-			url=recipe_url,
-			title=title,
-			ingredients=ingredients,
-			steps=steps,
-			cook_time=cook_time,
-			image=image,
-		)
+        return recipes
 
-	@staticmethod
-	def _text(soup: BeautifulSoup, selector: str | None) -> str | None:
-		if not selector:
-			return None
+    def parse(self, website: Website, page: str, recipe_url: str) -> Recipe:
+        soup = BeautifulSoup(page, "html.parser")
 
-		element = soup.select_one(selector)
-		return element.get_text(" ", strip=True) if element else None
+        title = self._text(soup, website.title)
+        ingredients = self._ingredients(soup, website)
+        steps = self._texts(soup, website.steps)
+        cook_time = self._text(soup, website.cook_time)
 
-	@staticmethod
-	def _texts(soup: BeautifulSoup, selector: str | None) -> list[str]:
-		if not selector:
-			return []
+        image = None
+        if website.image:
+            image_element = soup.select_one(website.image)
+            if image_element:
+                image = image_element.get("content") or image_element.get("src")
 
-		return [element.get_text(" ", strip=True) for element in soup.select(selector)]
+        return Recipe(
+                url=recipe_url,
+                title=title,
+                ingredients=ingredients,
+                steps=steps,
+                cook_time=cook_time,
+                image=image,
+                )
 
-	@classmethod
-	def _ingredients(cls, soup: BeautifulSoup, website: Website) -> list[Ingredient]:
-		if not website.ingredients:
-			return []
+    @staticmethod
+    def _text(soup: BeautifulSoup, selector: str | None) -> str | None:
+        if not selector:
+            return None
 
-		result = []
-		for item in soup.select(website.ingredients):
-			name = cls._child_text(item, website.ingredient_name)
-			quantity = cls._child_text(item, website.quantity)
-			unit = cls._child_text(item, website.unit)
+        element = soup.select_one(selector)
+        return element.get_text(" ", strip=True) if element else None
 
-			if name:
-				result.append(Ingredient(name=name, quantity=quantity, unit=unit))
+    @staticmethod
+    def _texts(soup: BeautifulSoup, selector: str | None) -> list[str]:
+        if not selector:
+            return []
 
-		return result
+        return [element.get_text(" ", strip=True) for element in soup.select(selector)]
 
-	@staticmethod
-	def _child_text(item, selector: str | None) -> str | None:
-		if not selector:
-			return None
+    @classmethod
+    def _ingredients(cls, soup: BeautifulSoup, website: Website) -> list[Ingredient]:
+        if not website.ingredients:
+            return []
 
-		element = item.select_one(selector)
-		return element.get_text(" ", strip=True) if element else None
+        result = []
+        for item in soup.select(website.ingredients):
+            name = cls._child_text(item, website.ingredient_name)
+            quantity = cls._child_text(item, website.quantity)
+            unit = cls._child_text(item, website.unit)
+
+            if name:
+                result.append(Ingredient(name=name, quantity=quantity, unit=unit))
+
+        return result
+
+    @staticmethod
+    def _child_text(item, selector: str | None) -> str | None:
+        if not selector:
+            return None
+
+        element = item.select_one(selector)
+        return element.get_text(" ", strip=True) if element else None
