@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 import json
-from json import JSONEncoder
 
 from cc_scraper.models.ingredient import Ingredient
 
@@ -24,7 +23,7 @@ class Recipe:
             result.append(f"\t- {step}")
         return "\n".join(result)
 
-    def toJson(self):
+    def to_json(self):
         return json.dumps(
                 self,
                 default=lambda o: o.__dict__, 
