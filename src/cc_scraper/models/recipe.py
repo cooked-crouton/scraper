@@ -10,6 +10,7 @@ class Recipe:
     ingredients: list[Ingredient] = field(default_factory=list)
     steps: list[str] = field(default_factory=list)
     cook_time: str | None = None
+    embedding: list[float] | None = None
 
     def __str__(self) -> str:
         result = [f"\n{self.title}"]
