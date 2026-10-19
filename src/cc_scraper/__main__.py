@@ -1,4 +1,5 @@
 from cc_scraper.utils.scraper import Scraper
+from cc_scraper.utils.embedder import Embedder
 from cc_scraper.website_definitions.marmiton import MARMITON
 from cc_scraper.website_definitions._750g import _750G
 from cc_scraper.website_definitions.le_journal_des_femmes import LE_JOURNAL_DES_FEMMES_VIANDES, LE_JOURNAL_DES_FEMMES_LEGUMES
@@ -21,10 +22,10 @@ def main():
     recipes.extend(Scraper().scrape(CHEFSIMON))
 
 
-    cpt = 1
+    for recipe, vector in zip(recipes, Embedder().embed(recipes)):
+        recipe.embedding = vector
+
     for recipe in recipes:
-        #print(str(cpt) + ". " + recipe.title)
-        #cpt += 1
         print(recipe.to_json())
 
 if __name__ == "__main__":
